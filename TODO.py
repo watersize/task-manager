@@ -5,10 +5,8 @@ import re
 from colorama import Fore, init
 from prettytable import PrettyTable
 
-#Инициализация colorama
 init()
 
-#Инициализируем цвета
 RED = "\033[0;31;40m" #RED
 GREEN = "\033[0;32;40m" # GREEN
 YELLOW = "\033[0;33;40m" # Yellow
