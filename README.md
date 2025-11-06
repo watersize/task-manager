@@ -47,7 +47,7 @@
 Выполните каждую команду отдельно, нажимая `Enter` после каждой строки:
 
 ```console
-git clone https://github.com/watersize/task-manager
+git clone https://github.com/watersize/task-manager.git
 
 cd task-manager
 
