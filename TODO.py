@@ -22,6 +22,7 @@ table_of_command.add_row([RESET+YELLOW+"add"+RESET, RESET+BLUE+"Добавляе
 table_of_command.add_row([RESET+YELLOW+"print_table"+RESET, RESET+BLUE+"Выводим таблицу"+RESET])
 table_of_command.add_row([RESET+YELLOW+"save_result"+RESET, RESET+BLUE+"Сохраняет результат"+RESET])
 table_of_command.add_row([RESET+YELLOW+"list_files"+RESET, RESET+BLUE+"Список имеющихся файлов"+RESET])
+table_of_command.add_row([RESET+YELLOW+"crate_table"+RESET, RESET+BLUE+"Создать новые столбцы для таблицы"+RESET])
 table_of_command.add_row([RESET+YELLOW+"open_file"+RESET, RESET+BLUE+"Открывает файл, в котором сохранена таблица"+RESET])
 table_of_command.add_row([RESET+YELLOW+"delete_file"+RESET, RESET+BLUE+"Удаление файла"+RESET])
 table_of_command.add_row([RESET+YELLOW+"delete"+RESET, RESET+BLUE+"Удаляем строку из таблицы по номеру столбца"+RESET])
@@ -30,44 +31,58 @@ table_of_command.add_row([RESET+YELLOW+"close"+RESET, RESET+BLUE+"Выключи
 
 
 def check_time_format(time_str):  
-		pattern = r'^\d{2}:\d{2}$'  
-		if re.match(pattern, time_str):  
-			return True
-		else:  
-			print("неверный ввод, должно быть: XX:XX")
+		pattern = r'^([0-5]?\d):([0-5]?\d)$'
+		match = re.match(pattern, time_str)
+		if not match:
+			print("Неверный ввод, должно быть XX:XX")
 			return False
+		
+		hours, minutes = map(int, match.groups())
+
+		if hours > 59 or minutes > 59:
+			print(f"Время {hours}:{minutes} выходит за рамки допустимого диапазона (00:00-59:59)")
+			return False
+		
+		return True
 		
 while True:
 	print("Введите команду, help - для помощи")
 	comm = input("--> ")
 
 	match comm:
-		case 'add':  #TODO Разобраться, сделать цикл, чтобы команда ex в ег
+		case 'add':
 			while True:
 				print("ex - для выхода")
 				print("Введите занятие")
 				move = input(Fore.YELLOW + "--> " + RESET)
 				if move == 'ex':
-					break
+						break
 				
 				while True:
-					print("Введие во сколько время")
+					print("Введите время (формат XX:XX)")
 					time_of_move_our = input(Fore.YELLOW + "--> " + RESET)
 					if time_of_move_our == 'ex':
 						break
 					if check_time_format(time_of_move_our):
 						break
 					else:
-						print("try again")
-				
+						print("Try again")
+						
 				print("Введите комментарий для занятия")
-				comment = input(Fore.YELLOW + "--> "+RESET)
+				comment = input(Fore.YELLOW + "--> " + RESET)
 				if comment == 'ex':
 					break
-
-				time_of_move = f"{time_of_move_our}"
-
-				table_of_TODO.add_row([time_of_move, move, comment])
+				# Основные поля
+				new_row = [time_of_move_our, move, comment]
+				
+				# Проходим по дополнительным столбцам (если ониесть)
+				field_names = table_of_TODO.field_names
+				for column_name in field_names[3:] :
+					value = input(f"Что вы хотите записать в поле \"{column_name}\": ")
+					new_row.append(value)
+					
+				# Добавляем строку в таблицу
+				table_of_TODO.add_row(new_row)
 				print(table_of_TODO)
 
 		case 'delete':
@@ -117,7 +132,6 @@ while True:
 					print("Операция отменена")
 			else:
 				print("Файл не существует")
-		
 
 		case 'list_files':
 			files = [f for f in os.listdir('.') if f.endswith('.csv')]
@@ -127,8 +141,30 @@ while True:
 					print(f"{i}, {file}")
 			else:
 				print("Нет доступных .csv файлов")
+
 		case 'delete_all':
 			table_of_TODO.clear_rows()
+		
+		case "create_table":
+			while True:
+				print("Ваша тоблица очиститься, продоложить?")
+				print("y/n")
+				yes_or_no = input("--> ")
+				if yes_or_no == 'y':
+					while True:
+						table_of_TODO.clear_rows()
+						print(table_of_TODO)
+						print("введите название колонки, которую хотите добавить, ex - для выхода")
+						name_of_table = input("--> ")
+						if name_of_table == 'ex':
+							break
+						table_of_TODO.add_column(name_of_table, [])
+						print("Теперь таблица выглядит так")
+						print(table_of_TODO)
+				else:
+					break
+
+				break
 
 		case 'close':
 			break
